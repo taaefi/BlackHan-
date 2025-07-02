@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة RPG مع حفظ الإعدادات</title>
+<style>
+  body { font-family: Arial; background: #121212; color: #eee; padding: 20px; }
+  button { margin: 5px; padding: 10px 20px; font-size: 16px; background: #444; color: #fff; border: none; border-radius: 5px; }
+  button:hover { background: #666; }
+  #log { background: #222; padding: 10px; height: 200px; overflow-y: auto; margin-top: 20px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>لعبة RPG</h1>
+<div id="character-selection" style="display:none;">
+  <h2>اختر شخصيتك</h2>
+  <button onclick="chooseCharacter('ساحر')">ساحر</button>
+  <button onclick="chooseCharacter('مبارز')">مبارز</button>
+  <button onclick="chooseCharacter('مقاتل')">مقاتل</button>
+</div>
+
+<div id="game" style="display:none;">
+  <h2>شخصيتك: <span id="char-name"></span></h2>
+  <p>الصحة: <span id="health"></span></p>
+  <p>القوة: <span id="strength"></span></p>
+  <p>المانا: <span id="mana"></span></p>
+  <p>الدفاع: <span id="defense"></span></p>
+  <p>الذكاء: <span id="intelligence"></span></p>
+  <p>السحر: <span id="magic"></span></p>
+
+  <button onclick="attack()">هاجم!</button>
+  <button onclick="waitTurn()">انتظر</button>
+  <button onclick="resetGame()">إعادة اختيار</button>
+
+  <div id="log"></div>
+</div>
+
+<script>
+const characters = {
+  'ساحر': {health:100,strength:20,mana:100,defense:30,intelligence:80,magic:90},
+  'مبارز': {health:120,strength:90,mana:40,defense:70,intelligence:40,magic:30},
+  'مقاتل': {health:140,strength:100,mana:30,defense:80,intelligence:30,magic:20}
+};
+
+let player = null;
+
+function saveGame() {
+  if (player) {
+    localStorage.setItem('rpgPlayer', JSON.stringify(player));
+    localStorage.setItem('rpgCharName', document.getElementById('char-name').textContent);
+  }
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('rpgPlayer');
+  const name = localStorage.getItem('rpgCharName');
+  if (saved && name) {
+    player = JSON.parse(saved);
+    document.getElementById('char-name').textContent = name;
+    updateStats();
+    document.getElementById('character-selection').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
+    logMessage(`تم تحميل شخصية ${name}.`);
+  } else {
+    document.getElementById('character-selection').style.display = 'block';
+  }
+}
+
+function chooseCharacter(name) {
+  player = {...characters[name]};
+  document.getElementById('char-name').textContent = name;
+  updateStats();
+  document.getElementById('character-selection').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  logMessage(`اخترت ${name}.`);
+  saveGame();
+}
+
+function updateStats() {
+  document.getElementById('health').textContent = player.health;
+  document.getElementById('strength').textContent = player.strength;
+  document.getElementById('mana').textContent = player.mana;
+  document.getElementById('defense').textContent = player.defense;
+  document.getElementById('intelligence').textContent = player.intelligence;
+  document.getElementById('magic').textContent = player.magic;
+}
+
+function logMessage(msg) {
+  const log = document.getElementById('log');
+  log.innerHTML += `<p>${msg}</p>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function attack() {
+  logMessage('هاجم! (تحت التطوير)');
+  saveGame();
+}
+
+function waitTurn() {
+  logMessage('ينتظر الدور...');
+  saveGame();
+}
+
+function resetGame() {
+  localStorage.clear();
+  player = null;
+  location.reload();
+}
+
+window.onload = loadGame;
+</script>
+</body>
+</html>
